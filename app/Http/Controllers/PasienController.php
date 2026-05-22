@@ -58,7 +58,7 @@ class PasienController extends Controller
     public function create()
     {
         try {
-            $agamas = Agama::orderBy('nama_agama')->get();
+            $agamas = Agama::orderBy('nama')->get();
             return view('pasien.create', compact('agamas'));
         } catch (\Exception $e) {
             return redirect()->route('pasien.index')
@@ -126,7 +126,7 @@ class PasienController extends Controller
     {
         try {
             $pasien = Pasien::findOrFail($no_rm);
-            $agamas = Agama::orderBy('nama_agama')->get();
+            $agamas = Agama::orderBy('nama')->get();
             return view('pasien.edit', compact('pasien', 'agamas'));
         } catch (ModelNotFoundException $e) {
             return redirect()->route('pasien.index')
@@ -201,6 +201,28 @@ class PasienController extends Controller
             } else {
                 $rekamMedis = collect();
             }
+
+            return view('pasien.show', compact('pasien', 'rekamMedis'));
+        } catch (ModelNotFoundException $e) {
+            return redirect()->route('pasien.index')
+                ->with('error', 'Pasien tidak ditemukan');
+        } catch (\Exception $e) {
+            return redirect()->route('pasien.index')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Tampilkan riwayat kunjungan pasien.
+     */
+    public function riwayat($no_rm)
+    {
+        try {
+            $pasien = Pasien::with('agama')->findOrFail($no_rm);
+            $rekamMedis = $pasien->rekamMedis()
+                ->with('dokter.spesialis')
+                ->orderBy('tgl_periksa', 'desc')
+                ->get();
 
             return view('pasien.show', compact('pasien', 'rekamMedis'));
         } catch (ModelNotFoundException $e) {

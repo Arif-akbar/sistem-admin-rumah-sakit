@@ -103,8 +103,12 @@ class RekamMedisController extends Controller
             ]);
 
             $validated['tgl_periksa'] = $request->tgl_periksa . ' ' . $request->jam_periksa;
+            $jamPeriksa = $validated['jam_periksa'];
+            $validated = $this->databasePayload($validated);
 
-            DB::transaction(function () use ($validated) {
+            DB::transaction(function () use ($validated, $jamPeriksa) {
+                $dokter = Dokter::findOrFail($validated['id_dokter']);
+                $validated['no_reg'] = $this->createPendaftaran($validated, $dokter->id_poli, $jamPeriksa);
                 RekamMedis::create($validated);
             });
 
@@ -171,6 +175,7 @@ class RekamMedisController extends Controller
             ]);
 
             $validated['tgl_periksa'] = $request->tgl_periksa . ' ' . $request->jam_periksa;
+            $validated = $this->databasePayload($validated);
 
             DB::transaction(function () use ($rekamMedis, $validated) {
                 $rekamMedis->update($validated);
@@ -301,5 +306,38 @@ class RekamMedisController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    private function databasePayload(array $validated): array
+    {
+        if (! empty($validated['respirasi'])) {
+            $respirasi = 'Respirasi: ' . $validated['respirasi'] . ' napas/menit';
+            $validated['catatan'] = trim(($validated['catatan'] ?? '') . "\n" . $respirasi);
+        }
+
+        unset($validated['jam_periksa'], $validated['respirasi']);
+
+        return $validated;
+    }
+
+    private function createPendaftaran(array $data, int $idPoli, string $jamPeriksa): int
+    {
+        $tanggal = substr($data['tgl_periksa'], 0, 10);
+        $count = DB::table('pendaftaran')->whereDate('tgl_pendaftaran', $tanggal)->count() + 1;
+
+        return DB::table('pendaftaran')->insertGetId([
+            'kode_reg' => 'REG-' . str_replace('-', '', $tanggal) . '-' . str_pad($count, 3, '0', STR_PAD_LEFT),
+            'no_rm' => $data['no_rm'],
+            'id_poli' => $idPoli,
+            'id_dokter' => $data['id_dokter'],
+            'tgl_pendaftaran' => $tanggal,
+            'jam_pendaftaran' => $jamPeriksa,
+            'no_antrian' => $count,
+            'status' => 'Selesai',
+            'keluhan' => $data['keluhan_utama'],
+            'jenis_pembayaran' => 'Umum',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }

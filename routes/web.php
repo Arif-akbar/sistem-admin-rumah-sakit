@@ -12,14 +12,8 @@ Route::get('/', function () {
     return view('dashboard');
 })->name('dashboard');
 
-// Resources (Eloquent Resource Routes)
-Route::resource('pasien', PasienController::class);
-Route::resource('dokter', DokterController::class);
-Route::resource('jadwal', JadwalDokterController::class);
-Route::resource('rekam-medis', RekamMedisController::class);
-Route::resource('poli', PoliController::class);
-
-// Additional routes
+// Additional routes must be registered before resources so they are not
+// captured by resource show routes such as pasien/{pasien}.
 Route::prefix('pasien')->group(function () {
     Route::get('{no_rm}/riwayat', [PasienController::class, 'riwayat'])->name('pasien.riwayat');
     Route::get('search', [PasienController::class, 'search'])->name('pasien.search');
@@ -44,3 +38,10 @@ Route::prefix('rekam-medis')->group(function () {
 Route::prefix('poli')->group(function () {
     Route::get('aktif', [PoliController::class, 'getAktif'])->name('poli.aktif');
 });
+
+// Resources (Eloquent Resource Routes)
+Route::resource('pasien', PasienController::class);
+Route::resource('dokter', DokterController::class);
+Route::resource('jadwal', JadwalDokterController::class);
+Route::resource('rekam-medis', RekamMedisController::class)->names('rekam_medis');
+Route::resource('poli', PoliController::class);

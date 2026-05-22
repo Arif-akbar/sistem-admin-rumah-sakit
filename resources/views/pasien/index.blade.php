@@ -8,20 +8,23 @@
         <h1 class="page-title">Data Pasien</h1>
         <p class="metric-label">Manajemen data profil dan rekam pasien</p>
     </div>
-    <div style="display: flex; gap: 12px;">
-        <div class="input-field" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: white;">
+    <form method="GET" action="{{ route('pasien.index') }}" style="display: flex; gap: 12px;">
+        <div class="input-field"
+            style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: white;">
             <i data-lucide="search" style="width: 16px; height: 16px; color: var(--color-text-muted);"></i>
-            <input type="text" placeholder="Cari NRM, NIK, atau Nama..." style="border: none; outline: none; font-family: var(--font-family); width: 200px;">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari NRM, NIK, atau Nama..."
+                style="border: none; outline: none; font-family: var(--font-family); width: 200px;">
         </div>
-        <button class="btn btn-secondary">
+        <button type="submit" class="btn btn-secondary">
             <i data-lucide="filter" style="width: 18px; height: 18px;"></i>
             Filter
         </button>
+        <a href="{{ route('pasien.index') }}" class="btn btn-secondary" style="text-decoration: none;">Reset</a>
         <a href="{{ route('pasien.create') }}" class="btn btn-primary" style="text-decoration: none;">
             <i data-lucide="user-plus" style="width: 18px; height: 18px;"></i>
             Tambah Pasien
         </a>
-    </div>
+    </form>
 </div>
 
 <div class="dashboard-grid">
@@ -69,12 +72,22 @@
                         <td>{{ $pasien->telepon ?? '-' }}</td>
                         <td>
                             <div style="display: flex; gap: 8px;">
-                                <button class="btn btn-secondary" style="padding: 4px 8px;" title="Lihat Detail">
+                                <a href="{{ route('pasien.show', $pasien->no_rm) }}" class="btn btn-secondary"
+                                    style="padding: 4px 8px;" title="Lihat Detail">
                                     <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
-                                </button>
-                                <button class="btn btn-secondary" style="padding: 4px 8px;" title="Edit Data">
+                                </a>
+                                <a href="{{ route('pasien.edit', $pasien->no_rm) }}" class="btn btn-secondary"
+                                    style="padding: 4px 8px;" title="Edit Data">
                                     <i data-lucide="edit-3" style="width: 16px; height: 16px;"></i>
-                                </button>
+                                </a>
+                                <form method="POST" action="{{ route('pasien.destroy', $pasien->no_rm) }}"
+                                    onsubmit="return confirm('Hapus pasien {{ $pasien->nama_pasien }}?')" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-secondary" style="padding: 4px 8px;" title="Hapus">
+                                        <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

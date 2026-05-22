@@ -23,13 +23,12 @@ class Poli extends Model
     protected $primaryKey = 'id_poli';
 
     protected $fillable = [
+        'kode_poli',
         'nama_poli',
+        'keterangan',
         'deskripsi',
-        'lokasi',
-        'telepon',
-        'jam_buka',
-        'jam_tutup',
         'status',
+        'is_active',
     ];
 
     protected $casts = [
@@ -50,7 +49,7 @@ class Poli extends Model
      */
     public function scopeAktif($query)
     {
-        return $query->where('status', 'Aktif');
+        return $query->where('is_active', 1);
     }
 
     /**
@@ -66,6 +65,26 @@ class Poli extends Model
      */
     public function getDokterAktif(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->dokter()->where('status', 'Aktif')->get();
+        return $this->dokter()->where('is_active', 1)->get();
+    }
+
+    public function getDeskripsiAttribute(): ?string
+    {
+        return $this->attributes['keterangan'] ?? null;
+    }
+
+    public function setDeskripsiAttribute($value): void
+    {
+        $this->attributes['keterangan'] = $value;
+    }
+
+    public function getStatusAttribute(): string
+    {
+        return ($this->attributes['is_active'] ?? 1) ? 'Aktif' : 'Non-Aktif';
+    }
+
+    public function setStatusAttribute($value): void
+    {
+        $this->attributes['is_active'] = $value === 'Aktif' ? 1 : 0;
     }
 }

@@ -9,4 +9,9 @@ class Spesialis extends Model
     protected $table = 'spesialis';
     public $timestamps = false;
     protected $guarded = [];
+
+    public function getNamaSpesialisAttribute(): ?string
+    {
+        return $this->attributes['nama'] ?? null;
+    }
 }

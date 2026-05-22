@@ -34,7 +34,7 @@ class PoliController extends Controller
 
             // Filter by status
             if ($request->filled('status')) {
-                $query->where('status', $request->status);
+                $query->where('is_active', $request->status === 'Aktif' ? 1 : 0);
             }
 
             $polis = $query->orderBy('nama_poli')->paginate(10);
@@ -68,14 +68,9 @@ class PoliController extends Controller
             $validated = $request->validate([
                 'nama_poli' => 'required|string|max:100|unique:poli,nama_poli',
                 'deskripsi' => 'nullable|string|max:500',
-                'lokasi' => 'nullable|string|max:100',
-                'telepon' => 'nullable|string|max:20',
-                'jam_buka' => 'nullable|date_format:H:i',
-                'jam_tutup' => 'nullable|date_format:H:i|after:jam_buka',
                 'status' => 'required|in:Aktif,Non-Aktif',
-            ], [
-                'jam_tutup.after' => 'Jam tutup harus lebih besar dari jam buka',
             ]);
+            $validated['kode_poli'] = $this->generateKodePoli($validated['nama_poli']);
 
             DB::transaction(function () use ($validated) {
                 Poli::create($validated);
@@ -122,10 +117,6 @@ class PoliController extends Controller
             $validated = $request->validate([
                 'nama_poli' => 'required|string|max:100|unique:poli,nama_poli,' . $id . ',id_poli',
                 'deskripsi' => 'nullable|string|max:500',
-                'lokasi' => 'nullable|string|max:100',
-                'telepon' => 'nullable|string|max:20',
-                'jam_buka' => 'nullable|date_format:H:i',
-                'jam_tutup' => 'nullable|date_format:H:i|after:jam_buka',
                 'status' => 'required|in:Aktif,Non-Aktif',
             ]);
 
@@ -209,7 +200,7 @@ class PoliController extends Controller
     public function getAktif()
     {
         try {
-            $polis = Poli::where('status', 'Aktif')
+            $polis = Poli::where('is_active', 1)
                 ->orderBy('nama_poli')
                 ->get();
 
@@ -217,5 +208,19 @@ class PoliController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    private function generateKodePoli(string $namaPoli): string
+    {
+        $prefix = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $namaPoli), 0, 3)) ?: 'POL';
+        $base = 'PLI-' . $prefix;
+        $kode = $base;
+        $counter = 1;
+
+        while (Poli::where('kode_poli', $kode)->exists()) {
+            $kode = $base . '-' . $counter++;
+        }
+
+        return $kode;
     }
 }

@@ -42,11 +42,11 @@ class DokterController extends Controller
             // Search by nama
             if ($request->filled('search')) {
                 $query->where('nama_dokter', 'like', '%' . $request->search . '%')
-                    ->orWhere('nomor_sip', 'like', '%' . $request->search . '%');
+                    ->orWhere('sip_number', 'like', '%' . $request->search . '%');
             }
 
             $dokters = $query->orderBy('nama_dokter')->paginate(10);
-            $spesialis = Spesialis::orderBy('nama_spesialis')->get();
+            $spesialis = Spesialis::orderBy('nama')->get();
             $polis = Poli::orderBy('nama_poli')->get();
 
             return view('dokter.index', compact('dokters', 'spesialis', 'polis'));
@@ -62,7 +62,7 @@ class DokterController extends Controller
     public function create()
     {
         try {
-            $spesialis = Spesialis::orderBy('nama_spesialis')->get();
+            $spesialis = Spesialis::orderBy('nama')->get();
             $polis = Poli::orderBy('nama_poli')->get();
 
             return view('dokter.create', compact('spesialis', 'polis'));
@@ -80,14 +80,15 @@ class DokterController extends Controller
         try {
             $validated = $request->validate([
                 'nama_dokter' => 'required|string|max:100',
-                'nomor_sip' => 'required|string|max:50|unique:dokter,nomor_sip',
+                'nomor_sip' => 'required|string|max:50|unique:dokter,sip_number',
                 'id_spesialis' => 'required|exists:spesialis,id',
                 'id_poli' => 'required|exists:poli,id_poli',
-                'alamat' => 'nullable|string|max:255',
                 'telepon' => 'nullable|string|max:20',
                 'email' => 'nullable|email|max:100',
                 'status' => 'required|in:Aktif,Non-Aktif',
             ]);
+
+            $validated['kode_dokter'] = $this->generateKodeDokter();
 
             DB::transaction(function () use ($validated) {
                 Dokter::create($validated);
@@ -113,7 +114,7 @@ class DokterController extends Controller
     {
         try {
             $dokter = Dokter::findOrFail($id);
-            $spesialis = Spesialis::orderBy('nama_spesialis')->get();
+            $spesialis = Spesialis::orderBy('nama')->get();
             $polis = Poli::orderBy('nama_poli')->get();
 
             return view('dokter.edit', compact('dokter', 'spesialis', 'polis'));
@@ -136,10 +137,9 @@ class DokterController extends Controller
 
             $validated = $request->validate([
                 'nama_dokter' => 'required|string|max:100',
-                'nomor_sip' => 'required|string|max:50|unique:dokter,nomor_sip,' . $id . ',id_dokter',
+                'nomor_sip' => 'required|string|max:50|unique:dokter,sip_number,' . $id . ',id_dokter',
                 'id_spesialis' => 'required|exists:spesialis,id',
                 'id_poli' => 'required|exists:poli,id_poli',
-                'alamat' => 'nullable|string|max:255',
                 'telepon' => 'nullable|string|max:20',
                 'email' => 'nullable|email|max:100',
                 'status' => 'required|in:Aktif,Non-Aktif',
@@ -244,5 +244,13 @@ class DokterController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    private function generateKodeDokter(): string
+    {
+        $last = Dokter::orderBy('id_dokter', 'desc')->first();
+        $nextNumber = $last ? $last->id_dokter + 1 : 1;
+
+        return 'DKT-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
 }

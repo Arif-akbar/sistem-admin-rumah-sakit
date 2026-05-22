@@ -47,7 +47,7 @@ class JadwalDokterController extends Controller
                 ->orderBy('nama_dokter')
                 ->get();
 
-            $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+            $days = $this->days();
 
             return view('jadwal.index', compact('jadwals', 'dokters', 'days'));
         } catch (\Exception $e) {
@@ -65,7 +65,7 @@ class JadwalDokterController extends Controller
             $dokters = Dokter::with('spesialis', 'poli')
                 ->orderBy('nama_dokter')
                 ->get();
-            $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+            $days = $this->days();
 
             return view('jadwal.create', compact('dokters', 'days'));
         } catch (\Exception $e) {
@@ -92,6 +92,7 @@ class JadwalDokterController extends Controller
             ]);
 
             // Validasi tidak ada konflik jadwal (satu dokter tidak bisa 2 jadwal 1 waktu)
+            $validated['hari'] = $this->dayNumber($validated['hari']);
             $this->validateJadwalKonflik($validated);
 
             DB::transaction(function () use ($validated) {
@@ -121,7 +122,7 @@ class JadwalDokterController extends Controller
             $dokters = Dokter::with('spesialis', 'poli')
                 ->orderBy('nama_dokter')
                 ->get();
-            $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+            $days = $this->days();
 
             return view('jadwal.edit', compact('jadwal', 'dokters', 'days'));
         } catch (ModelNotFoundException $e) {
@@ -150,6 +151,7 @@ class JadwalDokterController extends Controller
             ]);
 
             // Validasi konflik, exclude jadwal yang sedang diedit
+            $validated['hari'] = $this->dayNumber($validated['hari']);
             $this->validateJadwalKonflik($validated, $id);
 
             DB::transaction(function () use ($jadwal, $validated) {
@@ -272,5 +274,19 @@ class JadwalDokterController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    private function days(): array
+    {
+        return ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    }
+
+    private function dayNumber(string|int $day): int
+    {
+        if (is_numeric($day)) {
+            return (int) $day;
+        }
+
+        return array_search($day, $this->days(), true) + 1;
     }
 }

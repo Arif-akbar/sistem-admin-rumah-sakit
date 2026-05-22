@@ -13,10 +13,10 @@
             <i data-lucide="search" style="width: 16px; height: 16px; color: var(--color-text-muted);"></i>
             <input type="text" placeholder="Cari NRM atau Diagnosis..." style="border: none; outline: none; font-family: var(--font-family); width: 220px;">
         </div>
-        <button class="btn btn-primary">
+        <a href="{{ route('rekam_medis.create') }}" class="btn btn-primary" style="text-decoration: none;">
             <i data-lucide="folder-plus" style="width: 18px; height: 18px;"></i>
             Input Data Baru
-        </button>
+        </a>
     </div>
 </div>
 
@@ -47,21 +47,36 @@
                         </td>
                         <td>
                             <div>{{ $rekam->dokter->nama_dokter ?? '-' }}</div>
-                            <div style="font-size: 12px; color: var(--color-text-muted);">{{ $rekam->dokter->spesialis->nama ?? '-' }}</div>
+                            <div style="font-size: 12px; color: var(--color-text-muted);">{{ $rekam->dokter->spesialis->nama_spesialis ?? '-' }}</div>
                         </td>
                         <td>
-                            @if($rekam->kode_icd)
-                                <span class="badge" style="background: rgba(15, 23, 42, 0.1); color: var(--color-sidebar-bg); margin-bottom: 4px;">ICD: {{ $rekam->kode_icd }}</span>
+                            @if($rekam->kode_icd10)
+                                <span class="badge" style="background: rgba(15, 23, 42, 0.1); color: var(--color-sidebar-bg); margin-bottom: 4px;">ICD: {{ $rekam->kode_icd10 }}</span>
                             @endif
                             <div style="font-weight: 500;">{{ $rekam->diagnosis ?? 'Menunggu Diagnosis' }}</div>
                         </td>
                         <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                            {{ $rekam->terapi ?? '-' }}
+                            {{ $rekam->tindakan ?? $rekam->resep ?? '-' }}
                         </td>
                         <td>
-                            <button class="btn btn-secondary" style="padding: 4px 8px;" title="Lihat Rekam Medis">
-                                <i data-lucide="file-text" style="width: 16px; height: 16px;"></i>
-                            </button>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{{ route('rekam_medis.show', $rekam->id) }}" class="btn btn-secondary"
+                                    style="padding: 4px 8px;" title="Lihat Rekam Medis">
+                                    <i data-lucide="file-text" style="width: 16px; height: 16px;"></i>
+                                </a>
+                                <a href="{{ route('rekam_medis.edit', $rekam->id) }}" class="btn btn-secondary"
+                                    style="padding: 4px 8px;" title="Edit Rekam Medis">
+                                    <i data-lucide="edit-3" style="width: 16px; height: 16px;"></i>
+                                </a>
+                                <form method="POST" action="{{ route('rekam_medis.destroy', $rekam->id) }}"
+                                    onsubmit="return confirm('Hapus rekam medis ini?')" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-secondary" style="padding: 4px 8px;" title="Hapus">
+                                        <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @empty

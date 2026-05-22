@@ -13,10 +13,10 @@
             <i data-lucide="search" style="width: 16px; height: 16px; color: var(--color-text-muted);"></i>
             <input type="text" placeholder="Cari Dokter / Poli..." style="border: none; outline: none; font-family: var(--font-family); width: 200px;">
         </div>
-        <button class="btn btn-primary">
+        <a href="{{ route('jadwal.create') }}" class="btn btn-primary" style="text-decoration: none;">
             <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
             Tambah Jadwal
-        </button>
+        </a>
     </div>
 </div>
 
@@ -32,47 +32,56 @@
                         <th>Waktu Shift</th>
                         <th>Kuota Maks</th>
                         <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @php
-                        $hari_map = [
-                            1 => 'Senin',
-                            2 => 'Selasa',
-                            3 => 'Rabu',
-                            4 => 'Kamis',
-                            5 => 'Jumat',
-                            6 => 'Sabtu',
-                            7 => 'Minggu'
-                        ];
+                        $hari_map = [1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu', 7 => 'Minggu'];
                     @endphp
 
                     @forelse ($jadwals as $jadwal)
                     <tr>
-                        <td style="font-weight: 600;">{{ $hari_map[$jadwal->hari] ?? 'Unknown' }}</td>
+                        <td style="font-weight: 600;">{{ $hari_map[$jadwal->hari] ?? $jadwal->hari }}</td>
                         <td>
                             <div style="font-weight: 600; color: var(--color-primary);">{{ $jadwal->dokter->nama_dokter ?? '-' }}</div>
-                            <div style="font-size: 12px; color: var(--color-text-muted);">SIP: {{ $jadwal->dokter->sip_number ?? '-' }}</div>
+                            <div style="font-size: 12px; color: var(--color-text-muted);">SIP: {{ $jadwal->dokter->nomor_sip ?? '-' }}</div>
                         </td>
                         <td>
-                            <div>{{ $jadwal->dokter->spesialis->nama ?? '-' }}</div>
+                            <div>{{ $jadwal->dokter->spesialis->nama_spesialis ?? '-' }}</div>
                             <div style="font-size: 12px; color: var(--color-text-muted);">Poli: {{ $jadwal->dokter->poli->nama_poli ?? '-' }}</div>
                         </td>
                         <td style="font-family: monospace; font-size: 14px;">
                             {{ substr($jadwal->jam_mulai, 0, 5) }} - {{ substr($jadwal->jam_selesai, 0, 5) }}
                         </td>
-                        <td>{{ $jadwal->kuota }} Pasien</td>
+                        <td>{{ $jadwal->kuota_pasien }} Pasien</td>
                         <td>
-                            @if($jadwal->is_active)
-                                <span class="badge success">Aktif</span>
-                            @else
-                                <span class="badge danger">Cuti / Non-Aktif</span>
-                            @endif
+                            <span class="badge success">Aktif</span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{{ route('jadwal.show', $jadwal->id) }}" class="btn btn-secondary"
+                                    style="padding: 4px 8px;" title="Lihat Detail">
+                                    <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                                </a>
+                                <a href="{{ route('jadwal.edit', $jadwal->id) }}" class="btn btn-secondary"
+                                    style="padding: 4px 8px;" title="Edit Jadwal">
+                                    <i data-lucide="edit-3" style="width: 16px; height: 16px;"></i>
+                                </a>
+                                <form method="POST" action="{{ route('jadwal.destroy', $jadwal->id) }}"
+                                    onsubmit="return confirm('Hapus jadwal dokter ini?')" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-secondary" style="padding: 4px 8px;" title="Hapus">
+                                        <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 32px; color: var(--color-text-muted);">
+                        <td colspan="7" style="text-align: center; padding: 32px; color: var(--color-text-muted);">
                             <i data-lucide="calendar" style="width: 48px; height: 48px; margin: 0 auto 12px; opacity: 0.5;"></i>
                             <p>Belum ada jadwal dokter terdaftar.</p>
                         </td>

@@ -25,14 +25,16 @@ class Dokter extends Model
     protected $primaryKey = 'id_dokter';
 
     protected $fillable = [
+        'kode_dokter',
         'nama_dokter',
         'nomor_sip',
+        'sip_number',
         'id_spesialis',
         'id_poli',
-        'alamat',
         'telepon',
         'email',
         'status',
+        'is_active',
     ];
 
     protected $casts = [
@@ -77,7 +79,7 @@ class Dokter extends Model
      */
     public function scopeAktif($query)
     {
-        return $query->where('status', 'Aktif');
+        return $query->where('is_active', 1);
     }
 
     /**
@@ -94,5 +96,25 @@ class Dokter extends Model
     public function scopeByPoli($query, $id_poli)
     {
         return $query->where('id_poli', $id_poli);
+    }
+
+    public function getNomorSipAttribute(): ?string
+    {
+        return $this->attributes['sip_number'] ?? null;
+    }
+
+    public function setNomorSipAttribute($value): void
+    {
+        $this->attributes['sip_number'] = $value;
+    }
+
+    public function getStatusAttribute(): string
+    {
+        return ($this->attributes['is_active'] ?? 1) ? 'Aktif' : 'Non-Aktif';
+    }
+
+    public function setStatusAttribute($value): void
+    {
+        $this->attributes['is_active'] = $value === 'Aktif' ? 1 : 0;
     }
 }

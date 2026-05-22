@@ -25,7 +25,9 @@ class JadwalDokter extends Model
         'hari',
         'jam_mulai',
         'jam_selesai',
+        'kuota',
         'kuota_pasien',
+        'is_active',
     ];
 
     /**
@@ -76,5 +78,15 @@ class JadwalDokter extends Model
         $mulai = strtotime($this->jam_mulai);
         $selesai = strtotime($this->jam_selesai);
         return round(($selesai - $mulai) / 60);
+    }
+
+    public function getKuotaPasienAttribute(): ?int
+    {
+        return $this->attributes['kuota'] ?? null;
+    }
+
+    public function setKuotaPasienAttribute($value): void
+    {
+        $this->attributes['kuota'] = $value;
     }
 }

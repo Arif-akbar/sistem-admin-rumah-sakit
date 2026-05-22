@@ -30,19 +30,24 @@ class RekamMedis extends Model
     protected $table = 'rekam_medis';
 
     protected $fillable = [
+        'no_reg',
         'no_rm',
         'id_dokter',
         'tgl_periksa',
-        'jam_periksa',
+        'anamnesis',
         'keluhan_utama',
         'diagnosis',
+        'kode_icd',
         'kode_icd10',
         'resep',
+        'terapi',
         'tindakan',
+        'catatan_dokter',
         'catatan',
         'tekanan_darah',
+        'nadi',
         'denyut_nadi',
-        'respirasi',
+        'suhu',
         'suhu_tubuh',
         'berat_badan',
         'tinggi_badan',
@@ -52,9 +57,9 @@ class RekamMedis extends Model
         'tgl_periksa' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'denyut_nadi' => 'integer',
+        'nadi' => 'integer',
         'respirasi' => 'integer',
-        'suhu_tubuh' => 'float',
+        'suhu' => 'float',
         'berat_badan' => 'float',
         'tinggi_badan' => 'float',
     ];
@@ -123,5 +128,65 @@ class RekamMedis extends Model
         if ($imb <= 24.9) return 'Normal';
         if ($imb <= 29.9) return 'Overweight';
         return 'Obese';
+    }
+
+    public function getKeluhanUtamaAttribute(): ?string
+    {
+        return $this->attributes['anamnesis'] ?? null;
+    }
+
+    public function setKeluhanUtamaAttribute($value): void
+    {
+        $this->attributes['anamnesis'] = $value;
+    }
+
+    public function getKodeIcd10Attribute(): ?string
+    {
+        return $this->attributes['kode_icd'] ?? null;
+    }
+
+    public function setKodeIcd10Attribute($value): void
+    {
+        $this->attributes['kode_icd'] = $value;
+    }
+
+    public function getTindakanAttribute(): ?string
+    {
+        return $this->attributes['terapi'] ?? null;
+    }
+
+    public function setTindakanAttribute($value): void
+    {
+        $this->attributes['terapi'] = $value;
+    }
+
+    public function getDenyutNadiAttribute(): ?int
+    {
+        return $this->attributes['nadi'] ?? null;
+    }
+
+    public function setDenyutNadiAttribute($value): void
+    {
+        $this->attributes['nadi'] = $value;
+    }
+
+    public function getSuhuTubuhAttribute(): ?float
+    {
+        return $this->attributes['suhu'] ?? null;
+    }
+
+    public function setSuhuTubuhAttribute($value): void
+    {
+        $this->attributes['suhu'] = $value;
+    }
+
+    public function getCatatanAttribute(): ?string
+    {
+        return $this->attributes['catatan_dokter'] ?? null;
+    }
+
+    public function setCatatanAttribute($value): void
+    {
+        $this->attributes['catatan_dokter'] = $value;
     }
 }
