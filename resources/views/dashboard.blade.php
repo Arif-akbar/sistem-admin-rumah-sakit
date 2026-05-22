@@ -13,10 +13,10 @@
             <i data-lucide="search" style="width: 16px; height: 16px; color: var(--color-text-muted);"></i>
             <input type="text" placeholder="Cari NRM atau Pasien..." style="border: none; outline: none; font-family: var(--font-family);">
         </div>
-        <button class="btn btn-primary">
+        <a href="{{ route('pasien.create') }}" class="btn btn-primary" style="text-decoration: none;">
             <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
             Pasien Baru
-        </button>
+        </a>
     </div>
 </div>
 

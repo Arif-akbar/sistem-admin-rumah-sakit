@@ -17,14 +17,23 @@
             <i data-lucide="filter" style="width: 18px; height: 18px;"></i>
             Filter
         </button>
-        <button class="btn btn-primary">
+        <a href="{{ route('pasien.create') }}" class="btn btn-primary" style="text-decoration: none;">
             <i data-lucide="user-plus" style="width: 18px; height: 18px;"></i>
             Tambah Pasien
-        </button>
+        </a>
     </div>
 </div>
 
 <div class="dashboard-grid">
+    @if(session('success'))
+    <div class="card col-span-12" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--color-success); padding: 16px;">
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--color-success); font-weight: 600;">
+            <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+            {{ session('success') }}
+        </div>
+    </div>
+    @endif
+
     <div class="card col-span-12">
         <div class="table-container">
             <table>
