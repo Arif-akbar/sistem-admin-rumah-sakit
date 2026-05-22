@@ -1,0 +1,193 @@
+@extends('layouts.app')
+
+@section('title', 'Tambah Dokter')
+
+@section('content')
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Tambah Dokter Baru</h1>
+            <p class="metric-label">Daftarkan dokter baru ke sistem</p>
+        </div>
+        <a href="{{ route('dokter.index') }}" class="btn btn-secondary">
+            <i data-lucide="arrow-left"></i>
+            Kembali
+        </a>
+    </div>
+
+    <div class="card" style="max-width: 700px;">
+        <form method="POST" action="{{ route('dokter.store') }}" class="form">
+            @csrf
+
+            <div class="form-section">
+                <h3 class="form-section-title">Data Dokter</h3>
+
+                <div class="form-group">
+                    <label for="nama_dokter">Nama Lengkap <span class="required">*</span></label>
+                    <input type="text" id="nama_dokter" name="nama_dokter" placeholder="Nama dokter"
+                        value="{{ old('nama_dokter') }}" class="form-control @error('nama_dokter') is-invalid @enderror">
+                    @error('nama_dokter')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nomor_sip">No. SIP <span class="required">*</span></label>
+                        <input type="text" id="nomor_sip" name="nomor_sip" placeholder="Nomor Surat Izin Praktik"
+                            value="{{ old('nomor_sip') }}" class="form-control @error('nomor_sip') is-invalid @enderror">
+                        @error('nomor_sip')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_spesialis">Spesialis <span class="required">*</span></label>
+                        <select id="id_spesialis" name="id_spesialis"
+                            class="form-control @error('id_spesialis') is-invalid @enderror">
+                            <option value="">-- Pilih Spesialis --</option>
+                            @foreach ($spesialis as $s)
+                                <option value="{{ $s->id }}" {{ old('id_spesialis') == $s->id ? 'selected' : '' }}>
+                                    {{ $s->nama_spesialis }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('id_spesialis')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="id_poli">Poli <span class="required">*</span></label>
+                        <select id="id_poli" name="id_poli" class="form-control @error('id_poli') is-invalid @enderror">
+                            <option value="">-- Pilih Poli --</option>
+                            @foreach ($polis as $p)
+                                <option value="{{ $p->id_poli }}" {{ old('id_poli') == $p->id_poli ? 'selected' : '' }}>
+                                    {{ $p->nama_poli }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('id_poli')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="form-section-title">Informasi Kontak</h3>
+
+                <div class="form-group">
+                    <label for="alamat">Alamat</label>
+                    <textarea id="alamat" name="alamat" rows="3" class="form-control">{{ old('alamat') }}</textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="telepon">Nomor Telepon</label>
+                        <input type="tel" id="telepon" name="telepon" placeholder="0812345678"
+                            value="{{ old('telepon') }}" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="dokter@email.com"
+                            value="{{ old('email') }}" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="form-section-title">Status</h3>
+
+                <div class="form-group">
+                    <label for="status">Status <span class="required">*</span></label>
+                    <select id="status" name="status" class="form-control @error('status') is-invalid @enderror">
+                        <option value="Aktif" {{ old('status', 'Aktif') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="Non-Aktif" {{ old('status') == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                    </select>
+                    @error('status')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-section" style="border-top: 1px solid var(--color-border); padding-top: 24px;">
+                <div class="form-actions">
+                    <a href="{{ route('dokter.index') }}" class="btn btn-secondary">Batal</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i data-lucide="save"></i>
+                        Simpan Dokter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        .form-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            font-family: var(--font-family);
+            font-size: 13px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .form-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+    </style>
+
+    <script>
+        lucide.createIcons();
+    </script>
+@endsection
